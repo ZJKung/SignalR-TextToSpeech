@@ -8,18 +8,25 @@ using Microsoft.CognitiveServices.Speech;
 using Microsoft.CognitiveServices.Speech.Audio;
 using System.Text.Json;
 using TtSWebsocket.Models;
+using Microsoft.Extensions.Configuration;
 
 namespace TtSWebsocket.Controllers
 {
     public class BackendController : Controller
     {
         private readonly IHubContext<SignalRTtS> _hubContext;
+        private readonly IConfiguration _config;
         private readonly SpeechConfig _speechConfig;
 
-        public BackendController(IHubContext<SignalRTtS> hubContext)
+        public BackendController(IHubContext<SignalRTtS> hubContext, IConfiguration config)
         {
             _hubContext = hubContext;
-            _speechConfig = SpeechConfig.FromSubscription("9c1adec6de47477db9074133e4005c63", "southeastasia");
+            _config = config;
+            //get value form setting.json value
+            _speechConfig = SpeechConfig.FromSubscription(
+                config.GetValue<string>("subscriptionKey"),
+                config.GetValue<string>("region")
+                );
         }
 
         [HttpGet]
@@ -47,7 +54,7 @@ namespace TtSWebsocket.Controllers
         {
             var response = new byte[] { };
             var autoDetecConfig = AutoDetectSourceLanguageConfig.FromOpenRange();
-            using var synthesizer = new SpeechSynthesizer(_speechConfig,autoDetecConfig,AudioConfig.FromDefaultSpeakerOutput());
+            using var synthesizer = new SpeechSynthesizer(_speechConfig, autoDetecConfig, AudioConfig.FromDefaultSpeakerOutput());
             using var result = await synthesizer.SpeakTextAsync(msg);
             if (result.Reason == ResultReason.SynthesizingAudioCompleted)
             {
