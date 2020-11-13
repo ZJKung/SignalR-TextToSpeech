@@ -15,7 +15,7 @@ connection.on("ReceiveMessage", function (user, message) {
     li.textContent = encodedMsg;
     document.getElementById("messagesList").appendChild(li);
     if (msg.AudioStream) {
-        document.getElementById("audio_player").src = "data:audio/mp3;base64," + message;
+        document.getElementById("audio_player").src = "data:audio/mp3;base64," + msg.AudioStream;
         document.getElementById("audio_player").play();
     }
 });
@@ -34,4 +34,3 @@ document.getElementById("sendButton").addEventListener("click", function (event)
     });
     event.preventDefault();
 });
-
